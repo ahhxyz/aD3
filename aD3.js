@@ -23,19 +23,19 @@
                 var d3Layout = d3.layout[options.layout]()
                                 .size(options.size);
                 var nodes = d3Layout.nodes(options.ad3Dataset); //生成节点数据
-                var links = d3Layout.links(nodes);
+                var links = d3Layout.links(nodes);              //生成路径数据
                 
                 //创建对角线生成器
                 var diagonal = d3.svg.diagonal()
-                        .projection(function(d){
-                            return [d[options.projection[0]], d[options.projection[1]]];
+                    .projection(function(d){
+                        return [d[options.projection[0]], d[options.projection[1]]];
                 })
                 var svg = d3.select(elem[0])
                     .append('svg')
                     .width(options.size[0])
                     .height(options.size[1])
                     .append('g')
-                    .attr('transform', 'translate(40,0)');
+                    .attr('transform', 'translate(40,0)');  //设置padding.left和padding.top
                 //绘制路径，即节点之间的连线
                 var link = svg.selectAll(elem[0].querySelectorAll('.link'))
                     .data(links)
