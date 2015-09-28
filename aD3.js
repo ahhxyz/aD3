@@ -1,7 +1,26 @@
 (function(){
     angular.module('aD3', [])
     .factory('aD3.utils', [function(){
-
+        return {
+            deph : 0,
+            nestable : function(data, pid, option){
+                if(typeof pid == 'undefined') pid = 0;
+                var opt =  { 'idField' : 'id', 'parentField' : 'pid', 'childField' : 'children'};
+                angular.extend(opt, option)
+                var tree = [];
+                var self = this;
+                angular.forEach(data, function(v, k) {
+                    if(v[opt['parentField']] == pid) {
+                        tmp = data[k];
+                        //unset(data[k]);
+                        children = self.nestable(data, v[opt['idField']], opt);
+                        if(children) tmp[opt['childField']] = children;
+                        tree[v[opt['idField']]] = tmp;     //如果不需要使用Id作为键名，则让php自动分配键名即可，不用手动设置键名
+                    }
+                })
+                return tree;
+            }
+        }
     }])
     .directive('ad3', [function(scope, elem){
         return {
@@ -56,28 +75,7 @@
 
 
 
-    }]).factory('ad3Util', function(){
-        return {
-            deph : 0,
-            nestable : function(data, pid, option){
-                if(typeof pid == 'undefined') pid = 0;
-                var opt =  { 'idField' : 'id', 'parentField' : 'pid', 'childField' : 'children'};
-                angular.extend(opt, option)
-                var tree = [];
-                var self = this;
-                angular.forEach(data, function(v, k) {
-                    if(v[opt['parentField']] == pid) {
-                        tmp = data[k];
-                        //unset(data[k]);
-                        children = self.nestable(data, v[opt['idField']], opt);
-                        if(children) tmp[opt['childField']] = children;
-                        tree[v[opt['idField']]] = tmp;     //如果不需要使用Id作为键名，则让php自动分配键名即可，不用手动设置键名
-                    }
-                })
-                return tree;
-            }
-        }
-    })
+    }])
     var D3 = {};
     D3.layout = {
         bundle : {},
