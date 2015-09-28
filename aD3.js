@@ -1,6 +1,6 @@
 (function(){
     angular.module('aD3', [])
-    .factory('aD3.utils', [function(){
+    .factory('aD3Utils', [function(){
         return {
             deph : 0,
             nestable : function(data, pid, option){
@@ -10,30 +10,35 @@
                 var tree = [];
                 var self = this;
                 angular.forEach(data, function(v, k) {
+                    //console.log(v, v[opt['parentField']] , pid, v[opt['parentField']] == pid)
                     if(v[opt['parentField']] == pid) {
-                        tmp = data[k];
+                        var tmp = data[k];
                         //unset(data[k]);
+                        var children = [];
                         children = self.nestable(data, v[opt['idField']], opt);
                         if(children) tmp[opt['childField']] = children;
-                        tree[v[opt['idField']]] = tmp;     //如果不需要使用Id作为键名，则让php自动分配键名即可，不用手动设置键名
+                        tree.push(tmp);     
+
                     }
                 })
                 return tree;
             }
         }
     }])
-    .directive('ad3', [function(scope, elem){
+    .directive('ad3Chart', ['aD3Utils', function(aD3Utils){
         return {
             restrict : 'EA',
+            replace: true,
+            template: '<div class="d3Chart"></div>',
             scope : {
-                ad3Dataset : '=',
-                ad3Options : '@'
+                ad3Data : '=',
+                ad3Options : '='
             },
-            link : function(scope, elm, attrs){
-                var dataset = scope.ad3Dataset;
+            link : function(scope, elem, attrs){
+                var dataset = scope.ad3Data;
                 var options = {
-                    
-                    
+                    size : [600, 800],
+                    padding : {left: 80, right:50, top: 20, bottom: 20 },
                     projection : ['y', 'x']
                 };
                 options = angular.extend(options, scope.ad3Options);
@@ -43,27 +48,43 @@
                 D3.layoutObj = d3.layout[options.layout]().size(options.size);
                 D3.svg = d3.select(elem[0])
                     .append('svg')
-                    .width(options.size[0])
-                    .height(options.size[1])
+                    .attr('width', options.size[0])
+                    .attr('height', options.size[1])
                     .append('g')
-                    .attr('transform', 'translate(40,0)');  //设置padding.left和padding.top
+                    .attr('transform', "translate("+ options.padding.left + "," + options.padding.top + ")");  //设置padding.left和padding.top
                 //创建对角线生成器
                 D3.diagonal = d3.svg.diagonal()
                     .projection(function(d){
                         return [d[options.projection[0]], d[options.projection[1]]];
                 })
-                dataset.x0 = options.height / 2;
-                dataset.y0 =0;
                 
                 
-                D3.layout.tree.draw(elem, dataset, options);
+                
                     
                 
                 //D3[options.type]();
 
 
-                scope.$watch('data', function(newData, oldData){
-
+                scope.$watch('ad3Data', function(data){
+                    if(!data.length) return;
+                    var _data = angular.copy(data);
+                    angular.forEach(_data, function(v, k) {
+                        angular.forEach(v, function(val, key){
+                            if(['id', 'name', 'children', 'parent', 'pid'].indexOf(key) == -1){
+                                delete v[key];
+                            }
+                        })
+                        _data[k] = v;
+                    })  
+                    console.log(_data)
+                    var root = {
+                        x0 : options.size[1] / 2,
+                        y0 : 0,
+                        children : []
+                    }
+                    root.children = aD3Utils.nestable(_data);
+                    D3.root = root;
+                    D3.layout.tree.draw(root);
                 })
                 
                 
