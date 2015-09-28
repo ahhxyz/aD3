@@ -76,7 +76,6 @@
                         })
                         _data[k] = v;
                     })  
-                    console.log(_data)
                     var root = {
                         x0 : options.size[1] / 2,
                         y0 : 0,
