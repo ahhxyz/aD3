@@ -37,7 +37,7 @@
                 var dataset = scope.ad3Data;
                 var options = {
                     width : 600, 
-                    height : 800,
+                    height : 600,
                     padding : {left: 80, right:50, top: 20, bottom: 20 },
                     projection : ['y', 'x'],
                     fields : ['id', 'name', 'children', 'parent', 'pid']
@@ -49,8 +49,8 @@
                 D3.layoutObj = d3.layout[options.layout]().size([options.width, options.height]);
                 D3.svg = d3.select(elem[0])
                     .append('svg')
-                    .attr('width', options.width)
-                    .attr('height', options.height)
+                    .attr('width', options.width + options.padding.left + options.padding.right)
+                    .attr('height', options.height + options.padding.top + options.padding.bottom)
                     .append('g')
                     .attr('transform', "translate("+ options.padding.left + "," + options.padding.top + ")");  //设置padding.left和padding.top
                 //创建对角线生成器
