@@ -126,7 +126,7 @@
 
           //获取节点的update部分
           var nodeUpdate = D3.svg.selectAll(".node")
-                              .data(nodes, function(d){ return d.name; });
+                              .data(nodes, function(d){ return d.name + d.id; });
 
           //获取节点的enter部分
           var nodeEnter = nodeUpdate.enter();
@@ -182,7 +182,7 @@
 
           //获取连线的update部分
           var linkUpdate = D3.svg.selectAll(".link")
-                              .data(links, function(d){ return d.target.name; });
+                              .data(links, function(d){ return d.source.name + d.target.name + d.id; });
 
           //获取连线的enter部分
           var linkEnter = linkUpdate.enter();
