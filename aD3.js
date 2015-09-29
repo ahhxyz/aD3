@@ -2,7 +2,6 @@
     angular.module('aD3', [])
     .factory('aD3Utils', [function(){
         return {
-            deph : 0,
             nestable : function(data, pid, option){
                 if(typeof pid == 'undefined') pid = 0;
                 var opt =  { 'idField' : 'id', 'parentField' : 'pid', 'childField' : 'children'};
@@ -37,19 +36,21 @@
             link : function(scope, elem, attrs){
                 var dataset = scope.ad3Data;
                 var options = {
-                    size : [600, 800],
+                    width : 600, 
+                    height : 800,
                     padding : {left: 80, right:50, top: 20, bottom: 20 },
-                    projection : ['y', 'x']
+                    projection : ['y', 'x'],
+                    fields : ['id', 'name', 'children', 'parent', 'pid']
                 };
                 options = angular.extend(options, scope.ad3Options);
                 D3.root = dataset;
                 //D3.elem = elem[0];
                 //D3布局对象，用来转换数据以便适用于将要生成的图表类型
-                D3.layoutObj = d3.layout[options.layout]().size(options.size);
+                D3.layoutObj = d3.layout[options.layout]().size([options.width, options.height]);
                 D3.svg = d3.select(elem[0])
                     .append('svg')
-                    .attr('width', options.size[0])
-                    .attr('height', options.size[1])
+                    .attr('width', options.width)
+                    .attr('height', options.height)
                     .append('g')
                     .attr('transform', "translate("+ options.padding.left + "," + options.padding.top + ")");  //设置padding.left和padding.top
                 //创建对角线生成器
@@ -70,14 +71,14 @@
                     var _data = angular.copy(data);
                     angular.forEach(_data, function(v, k) {
                         angular.forEach(v, function(val, key){
-                            if(['id', 'name', 'children', 'parent', 'pid'].indexOf(key) == -1){
+                            if(options.fields.indexOf(key) == -1){
                                 delete v[key];
                             }
                         })
                         _data[k] = v;
                     })  
                     var root = {
-                        x0 : options.size[1] / 2,
+                        x0 : options.height / 2,
                         y0 : 0,
                         children : []
                     }
